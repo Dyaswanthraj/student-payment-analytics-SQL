@@ -49,6 +49,7 @@ FROM student_temp;
 select* from  student 
 
 -- if we have any null values we can check here
+
 select * from student
 where 
     srno is null
@@ -72,6 +73,7 @@ where
 	state is null;
 
 	-- deleting the null values
+
 delete from student
 where 
     srno is null
@@ -144,31 +146,37 @@ having sum(price) >=20051500.00
 order by month
 
 -- sort by years with course_name
+
 select extract ( year from payment_date) as year ,sum(price) , course_name
 from student
 where payment_status='captured'
 group by 1,3
 order by 1
+
 -- sort by course with total revenue
+
 select count(sname),course_name,sum(price) from student
 where payment_status='captured'
 group by course_name
 order by sum(price) desc
 
 -- different method for sorting of years and total revenue
+
 select extract (year from payment_date) as year, count(sname),course_name,sum(price) from student
 where payment_status='captured'
 group by course_name,year
 order by sum(price) desc , year
 
 -- total payments done by states and course name
+
 select count(payment_id),state,course_name  from student
 where payment_status ='captured'
 group by state,course_name
 order by state,course_name,count(payment_id)
--- 
+
 
 --each year revenue in different course
+
 with yearly_revenue
 as
 (
