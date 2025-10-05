@@ -1,0 +1,185 @@
+
+CREATE TABLE student_temp
+(
+    srno INT,
+    orderid VARCHAR(50),
+    sname VARCHAR(100),    -- for changing text to date i have created tem table 
+    payment_date TEXT,
+    course_name VARCHAR(150),
+    price NUMERIC(10,2),
+    payment_status CHAR(10),
+    payment_id VARCHAR(100),
+    email VARCHAR(150),
+    state VARCHAR(100)
+);
+
+create table student
+(
+srno int primary key,
+orderid varchar(50),
+sname varchar(100),                  
+payment_date date ,
+course_name varchar(150),
+price numeric (10,2)check (price>=0),  -- correct table
+payment_status char(10),
+payment_id varchar(100),
+email varchar(150),
+state varchar (100)
+);
+
+
+
+INSERT INTO student(
+    srno, orderid, sname, payment_date, course_name, price, payment_status, payment_id, email, state
+)
+SELECT 
+    srno, 
+    orderid, 
+    sname, 
+    payment_date::DATE,  -- cast text to date directly
+    course_name, 
+    price, 
+    payment_status, 
+    payment_id, 
+    email, 
+    state
+FROM student_temp;
+
+
+select* from  student 
+
+-- if we have any null values we can check here
+select * from student
+where 
+    srno is null
+    or
+	orderid is null
+	or 
+	sname is null
+	or
+	payment_date is null
+	or 
+	course_name is null
+	or
+	price is null 
+	or
+	payment_status is null
+	or
+	payment_id is null
+	or
+	email is null
+	or
+	state is null;
+
+	-- deleting the null values
+delete from student
+where 
+    srno is null
+    or
+	orderid is null
+	or 
+	sname is null
+	or
+	payment_date is null
+	or 
+	course_name is null
+	or
+	price is null 
+	or
+	payment_status is null
+	or
+	payment_id is null
+	or
+	email is null
+	or
+	state is null;	
+
+
+-- Total number of students
+SELECT COUNT(*) AS total_students FROM student;
+
+-- Total revenue generated
+SELECT SUM(price) AS total_revenue FROM student WHERE payment_status = 'captured';
+
+-- Number of courses offered
+SELECT COUNT(DISTINCT course_name) AS total_courses FROM student;
+
+-- Payment status distribution
+SELECT payment_status, COUNT(*) AS count FROM student GROUP BY payment_status;
+
+-- Top 5 states by total revenue
+select state,sum(price) from student
+where payment_status='captured'
+group by state
+order by sum(price) Desc
+
+-- we can see on the certain date who was registered
+select * from student
+where payment_date= '2023-03-07'
+
+-- different course_ name
+SELECT DISTINCT course_name FROM student;
+
+-- income by the course
+select course_name, sum(price) from student
+where payment_status='captured'
+group by course_name
+having sum(price) >=20051500.00
+order by sum(price)
+
+-- in the each course these many students are registered 
+select count(sname),course_name from student
+where payment_status='captured'
+group by course_name
+
+-- unique dates
+select distinct payment_date from student
+
+--monthly revenue
+select extract (month from payment_date) as month ,
+sum(price) from student
+where payment_status = 'captured'
+group by month
+having sum(price) >=20051500.00 
+order by month
+
+-- sort by years with course_name
+select extract ( year from payment_date) as year ,sum(price) , course_name
+from student
+where payment_status='captured'
+group by 1,3
+order by 1
+-- sort by course with total revenue
+select count(sname),course_name,sum(price) from student
+where payment_status='captured'
+group by course_name
+order by sum(price) desc
+
+-- different method for sorting of years and total revenue
+select extract (year from payment_date) as year, count(sname),course_name,sum(price) from student
+where payment_status='captured'
+group by course_name,year
+order by sum(price) desc , year
+
+-- total payments done by states and course name
+select count(payment_id),state,course_name  from student
+where payment_status ='captured'
+group by state,course_name
+order by state,course_name,count(payment_id)
+-- 
+
+--each year revenue in different course
+with yearly_revenue
+as
+(
+select *,
+      case
+	  when extract (year from payment_date ) =23 then 2023
+	   when extract (year from payment_date ) >24 then 2024
+	   else null
+	   end as year 
+	from student
+	)
+	select year, sum(price),course_name from yearly_revenue
+	where payment_status= 'captured'
+	group by year,course_name;
