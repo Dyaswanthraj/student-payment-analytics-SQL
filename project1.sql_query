@@ -48,6 +48,7 @@ FROM student_temp;
 
 select* from  student 
 
+
 -- if we have any null values we can check here
 
 select * from student
