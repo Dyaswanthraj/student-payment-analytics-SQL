@@ -14,6 +14,11 @@ Key objectives:
 - Count student enrollments in each course.
 - Analyze payment trends using SQL aggregate functions, GROUP BY, and CASE statements.
 
+
+
+ ## Tools Used
+- PostgreSQL / SQL
+
 ## Dataset
 The dataset consists of student transaction records with the following fields:  
 - `srno` – Serial number  
